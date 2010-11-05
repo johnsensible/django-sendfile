@@ -13,7 +13,6 @@ def _convert_file_to_url(filename):
     url = [settings.SENDFILE_URL]
 
     while relpath:
-        print relpath
         relpath, head = os.path.split(relpath)
         url.insert(1, head)
 
@@ -22,6 +21,10 @@ def _convert_file_to_url(filename):
 def sendfile(request, filename):
     response = HttpResponse()
     response['Location'] = _convert_file_to_url(filename)
+    # need to destroy get_host() to stop django
+    # rewriting our location to include http, so that
+    # mod_wsgi is able to do the internal redirect
+    request.get_host = lambda: ''
 
     return response
 
