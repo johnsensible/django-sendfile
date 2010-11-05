@@ -25,7 +25,8 @@ The interface is a single function `sendfile(request, filename, attachment=False
 
 Backends are specified using the setting `SENDFILE_BACKEND`.  Currenly available backends are:
 
- * `sendfile.backends.development` - for use with django development server only. DO NOT USE IN PRODUCTION
+* `sendfile.backends.development` - for use with django development server only. DO NOT USE IN PRODUCTION
+* `sendfile.backends.xsendfile` - sets X-Sendfile header (as used by mod_xsendfile/apache and lighthttpd)
 
 If you want to write your own backend simply create a module with a `sendfile` function matching:
 
