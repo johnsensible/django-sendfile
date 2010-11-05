@@ -20,15 +20,15 @@ def _get_sendfile():
     backend = getattr(settings, 'SENDFILE_BACKEND', None)
     if not backend:
         raise ImproperlyConfigured('You must specify a valued for SENDFILE_BACKEND')
-
+    print backend
     module = import_module(backend)
     return module.sendfile
 
 
 
-def sendfile(filename, attachment_name=None):
+def sendfile(request, filename, attachment_name=None):
     _sendfile = _get_sendfile()
-    response = _sendfile(filename)
+    response = _sendfile(request, filename)
     if attachment_name is not None:
         pass
         # TODO set attachment disposition etc
