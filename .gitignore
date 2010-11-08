@@ -1,3 +1,4 @@
 *.swp
 *.pyc
 /django_sendfile.egg-info
+/dist
