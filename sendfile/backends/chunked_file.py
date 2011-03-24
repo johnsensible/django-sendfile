@@ -2,8 +2,7 @@ from django.http import HttpResponse
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 def sendfile(request, filename):
-    response = HttpResponse(IterFile(filename))
-    return response
+    return = HttpResponse(IterFile(filename))
 
 class IterFile(object):
     def __init__(self, filename):
