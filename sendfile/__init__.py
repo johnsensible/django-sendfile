@@ -42,16 +42,15 @@ def sendfile(request, filename, attachment=False, attachment_filename=None):
     if not os.path.exists(filename):
         raise Http404('"%s" does not exist' % filename)
 
-    response = _sendfile(request, filename)
+    content_type = guess_type(filename)[0]
+    if content_type is None:
+        content_type = 'application/octet-stream'
+        
+    response = _sendfile(request, filename, mimetype=content_type)
     if attachment:
         attachment_filename = attachment_filename or os.path.basename(filename)
         response['Content-Disposition'] = 'attachment; filename=%s' % attachment_filename
 
     response['Content-length'] = os.path.getsize(filename)
-
-    content_type = guess_type(filename)[0]
-    if content_type is None:
-        content_type = "application/octet-stream"
     response['Content-Type'] = content_type
-
     return response
