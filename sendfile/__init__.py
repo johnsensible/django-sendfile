@@ -19,7 +19,7 @@ def _get_sendfile():
     from django.conf import settings
     from django.core.exceptions import ImproperlyConfigured
 
-    backend = getattr(settings, 'SENDFILE_BACKEND', 'sendfile.backends.simple')
+    backend = getattr(settings, 'SENDFILE_BACKEND', None)
     if not backend:
         raise ImproperlyConfigured('You must specify a valued for SENDFILE_BACKEND')
     module = import_module(backend)
