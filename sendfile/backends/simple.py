@@ -1,6 +1,5 @@
-from django.core.servers.basehttp import FileWrapper
+from django.core.files.base import File
 from django.http import HttpResponse
 
 def sendfile(request, filename):
-    wrapper = FileWrapper(file(filename))
-    return HttpResponse(wrapper)
+    return HttpResponse(File(file(filename, 'rb')))
