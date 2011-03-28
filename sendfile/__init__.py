@@ -29,22 +29,28 @@ def _get_sendfile():
 
 
 
-def sendfile(request, filename, attachment=False, attachment_filename=None):
+def sendfile(request, filename, attachment=False, attachment_filename=None, mimetype=None, encoding=None):
     '''
     create a response to send file using backend configured in SENDFILE_BACKEND
 
     if attachment is True the content-disposition header will be set with either
     the filename given or else the attachment_filename (of specified).  This
     will typically prompt the user to download the file, rather than view it.
+
+    If no mimetype or encoding are specified, then they will be guessed via the
+    filename (using the standard python mimetypes module)
     '''
     _sendfile = _get_sendfile()
 
     if not os.path.exists(filename):
         raise Http404('"%s" does not exist' % filename)
 
-    mimetype, encoding = guess_type(filename)
+    guessed_mimetype, guessed_encoding = guess_type(filename)
     if mimetype is None:
-        mimetype = 'application/octet-stream'
+        if guessed_mimetype:
+            mimetype = guessed_mimetype
+        else:
+            mimetype = 'application/octet-stream'
         
     response = _sendfile(request, filename, mimetype=mimetype)
     if attachment:
@@ -53,6 +59,8 @@ def sendfile(request, filename, attachment=False, attachment_filename=None):
 
     response['Content-length'] = os.path.getsize(filename)
     response['Content-Type'] = mimetype
+    if not encoding:
+        encoding = guessed_encoding
     if encoding:
         response['Content-Encoding'] = encoding
 

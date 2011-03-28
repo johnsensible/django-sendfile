@@ -10,11 +10,10 @@ from django.utils.http import http_date
 def sendfile(request, filename, **kwargs):
     # Respect the If-Modified-Since header.
     statobj = os.stat(filename)
-    mimetype = kwargs.get('mimetype', 'application/octet-stream')
 
     if not was_modified_since(request.META.get('HTTP_IF_MODIFIED_SINCE'),
                               statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
-        return HttpResponseNotModified(mimetype=mimetype)
+        return HttpResponseNotModified()
     
     
     response = HttpResponse(File(file(filename, 'rb')))
