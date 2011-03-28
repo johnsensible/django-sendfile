@@ -26,6 +26,7 @@ The interface is a single function `sendfile(request, filename, attachment=False
 Backends are specified using the setting `SENDFILE_BACKEND`.  Currenly available backends are:
 
 * `sendfile.backends.development` - for use with django development server only. DO NOT USE IN PRODUCTION
+* `sendfile.backends.simple` - "simple" backend that uses Django file objects to attempt to stream files from disk (note middleware may cause files to be loaded fully into memory)
 * `sendfile.backends.xsendfile` - sets X-Sendfile header (as used by mod_xsendfile/apache and lighthttpd)
 * `sendfile.backends.mod_wsgi` - sets Location with 200 code to trigger internal redirect (daemon mode mod_wsgi only - see below)
 
@@ -46,6 +47,11 @@ Development backend
 The Development backend is only meant for use while writing code.  It uses Django's static file serving code to do the job, which is only meant for development.  It reads the whole file into memory and the sends it down the wire - not good for big files, but ok when you are just testing things out.
 
 It will work with the Django dev server and anywhere else you can run Django.
+
+Simple backend
+==============
+
+This backend is one step up from the development backend.  It uses Django's `django.core.files.base.File` class to try and stream files from disk.  However some middleware (e.g. GzipMiddleware) that rewrites content will causes the entire file to be loaded into memory.  So only use this backend if you are not using middleware that rewrites content or you only have very small files.
 
 
 xsendfile backend
