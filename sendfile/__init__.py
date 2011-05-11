@@ -4,7 +4,6 @@ __version__ = '.'.join(map(str, VERSION))
 import os.path
 from mimetypes import guess_type
 
-from django.http import Http404
 
 def _lazy_load(fn):
     _cached = []
@@ -43,6 +42,7 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     _sendfile = _get_sendfile()
 
     if not os.path.exists(filename):
+        from django.http import Http404
         raise Http404('"%s" does not exist' % filename)
 
     guessed_mimetype, guessed_encoding = guess_type(filename)
