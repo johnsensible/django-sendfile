@@ -44,10 +44,10 @@ class TestSendfile(TestCase):
     def test_attachment(self):
         response = real_sendfile(HttpRequest(), _get_readme(), attachment=True)
         self.assertTrue(response is not None)
-        self.assertEqual('attachment; filename=README.rst', response['Content-Disposition'])
+        self.assertEqual('attachment; filename="README.rst"', response['Content-Disposition'])
 
     def test_attachment_filename(self):
         response = real_sendfile(HttpRequest(), _get_readme(), attachment=True, attachment_filename='tests.txt')
         self.assertTrue(response is not None)
-        self.assertEqual('attachment; filename=tests.txt', response['Content-Disposition'])
+        self.assertEqual('attachment; filename="tests.txt"', response['Content-Disposition'])
 
