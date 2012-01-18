@@ -1,4 +1,4 @@
-VERSION = (0, 2, 2)
+VERSION = (0, 3, 0, 'alpha')
 __version__ = '.'.join(map(str, VERSION))
 
 import os.path
@@ -11,6 +11,10 @@ def _lazy_load(fn):
         if not _cached:
             _cached.append(fn())
         return _cached[0]
+    def clear():
+        while _cached:
+            _cached.pop()
+    _decorated.clear = clear
     return _decorated
 
 
