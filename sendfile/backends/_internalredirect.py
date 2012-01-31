@@ -10,5 +10,5 @@ def _convert_file_to_url(filename):
         relpath, head = os.path.split(relpath)
         url.insert(1, head)
 
-    return u''.join(url)
+    return u'/'.join(url)
 
