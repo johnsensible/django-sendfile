@@ -1,7 +1,9 @@
 *.swp
 *.pyc
+*.db
 /django_sendfile.egg-info
 /dist
 /bin
 /include
 /lib
+.Python

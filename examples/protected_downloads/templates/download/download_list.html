@@ -1,0 +1,8 @@
+<h1>Downloads</h1>
+<ul>
+    {% for download in download_list %}
+    <li><a href="{{ download.get_absolute_url }}">{{ download.title }}</a></li>
+    {% empty %}
+    <li>No downloads</li>
+    {% endfor %}
+</ul>
