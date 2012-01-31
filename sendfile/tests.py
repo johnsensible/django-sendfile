@@ -70,7 +70,7 @@ class TestNginxBackend(TestCase):
     def setUp(self):
         settings.SENDFILE_BACKEND = 'sendfile.backends.nginx'
         settings.SENDFILE_ROOT = os.path.dirname(os.path.dirname(__file__))
-        settings.SENDFILE_URL = '/private/'
+        settings.SENDFILE_URL = '/private'
         _get_sendfile.clear()
 
     def test_correct_url_in_xaccelredirect_header(self):
