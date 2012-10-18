@@ -1,5 +1,5 @@
-from setuptools import setup, find_packages
- 
+from distutils.core import setup
+
 setup(
     name='django-sendfile',
     version=__import__('sendfile').__version__,
@@ -10,8 +10,18 @@ setup(
     url='http://github.com/johnsensible/django-sendfile',
     download_url='http://github.com/johnsensible/django-sendfile/downloads',
     license='BSD',
-    packages=find_packages(exclude=['ez_setup']),
-    include_package_data=True,
+    
+    requires=['Django (>=1.4.2)'],
+
+    packages=['sendfile', 'sendfile.backends'],
+    package_dir={
+        'sendfile': 'sendfile',
+        'sendfile.backends': 'sendfile/backends',
+    },
+    package_data = {
+        'sendfile': ['testfile.txt'],
+    },
+    
     zip_safe=True,
     classifiers=[
         'Development Status :: 4 - Beta',

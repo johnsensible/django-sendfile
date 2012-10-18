@@ -11,7 +11,7 @@ def sendfile(request, filename, **kwargs):
 
 
 def _get_readme():
-    return os.path.join(os.path.dirname(os.path.dirname(__file__)), 'README.rst')
+    return os.path.join(os.path.dirname(__file__), 'testfile.txt')
 
 class TestSendfile(TestCase):
 
@@ -29,7 +29,7 @@ class TestSendfile(TestCase):
     def test_sendfile(self):
         response = real_sendfile(HttpRequest(), _get_readme())
         self.assertTrue(response is not None)
-        self.assertEqual('application/octet-stream', response['Content-Type'])
+        self.assertEqual('text/plain', response['Content-Type'])
         self.assertEqual(_get_readme(), response.content)
 
     def test_set_mimetype(self):
@@ -45,7 +45,7 @@ class TestSendfile(TestCase):
     def test_attachment(self):
         response = real_sendfile(HttpRequest(), _get_readme(), attachment=True)
         self.assertTrue(response is not None)
-        self.assertEqual('attachment; filename="README.rst"', response['Content-Disposition'])
+        self.assertEqual('attachment; filename="testfile.txt"', response['Content-Disposition'])
 
     def test_attachment_filename(self):
         response = real_sendfile(HttpRequest(), _get_readme(), attachment=True, attachment_filename='tests.txt')
@@ -76,5 +76,5 @@ class TestNginxBackend(TestCase):
     def test_correct_url_in_xaccelredirect_header(self):
         response = real_sendfile(HttpRequest(), _get_readme())
         self.assertTrue(response is not None)
-        self.assertEqual('/private/README.rst', response['X-Accel-Redirect'])
+        self.assertEqual('/private/sendfile/testfile.txt', response['X-Accel-Redirect'])
 
