@@ -1,14 +1,17 @@
 from distutils.core import setup
 
+version=__import__('sendfile').__version__
+
+
 setup(
     name='django-sendfile',
-    version=__import__('sendfile').__version__,
+    version=version,
     description='Abstraction to offload file uploads to web-server (e.g. Apache with mod_xsendfile) once Django has checked permissions etc.',
     long_description=open('README.rst').read(),
     author='John Montgomery',
     author_email='john@sensibledevelopment.com',
-    url='http://github.com/johnsensible/django-sendfile',
-    download_url='http://github.com/johnsensible/django-sendfile/downloads',
+    url='https://github.com/johnsensible/django-sendfile',
+    download_url='https://github.com/johnsensible/django-sendfile/archive/v%s.zip#egg=django-sendfile-%s' % (version, version),
     license='BSD',
     
     requires=['Django (>=1.4.2)'],
