@@ -2,6 +2,7 @@
 *.pyc
 *.db
 /django_sendfile.egg-info
+/MANIFEST
 /dist
 /bin
 /include
