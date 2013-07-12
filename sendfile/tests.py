@@ -109,7 +109,7 @@ class TestSimpleBackend(TempFileTestCase):
 
         def test_range_request_header(self):
             request = HttpRequest()
-            response = real_sendfile(request, self.filepath)
+            response = real_sendfile(request, self.filepath, accept_ranges=True)
             self.assertEqual(response['Accept-ranges'], 'bytes')
             self.assertEqual(response['Content-length'], '90')
             self._verify_response_content(response, 0, 90)
@@ -117,7 +117,7 @@ class TestSimpleBackend(TempFileTestCase):
             # Request with both bounds
             request = HttpRequest()
             request.META['HTTP_RANGE'] = 'bytes=5-7'
-            response = real_sendfile(request, self.filepath)
+            response = real_sendfile(request, self.filepath, accept_ranges=True)
             self.assertEqual(response.status_code, 206)
             self.assertEqual(response['Content-length'], '3')
             self.assertEqual(response['Content-range'], 'bytes 5-7/90')
@@ -126,7 +126,7 @@ class TestSimpleBackend(TempFileTestCase):
             # Request with start bound
             request = HttpRequest()
             request.META['HTTP_RANGE'] = 'bytes=1-'
-            response = real_sendfile(request, self.filepath)
+            response = real_sendfile(request, self.filepath, accept_ranges=True)
             self.assertEqual(response.status_code, 206)
             self.assertEqual(response['Content-length'], '89')
             self.assertEqual(response['Content-range'], 'bytes 1-89/90')
@@ -135,7 +135,7 @@ class TestSimpleBackend(TempFileTestCase):
             # Request with end bound
             request = HttpRequest()
             request.META['HTTP_RANGE'] = 'bytes=-1'
-            response = real_sendfile(request, self.filepath)
+            response = real_sendfile(request, self.filepath, accept_ranges=True)
             self.assertEqual(response.status_code, 206)
             self.assertEqual(response['Content-length'], '2')
             self.assertEqual(response['Content-range'], 'bytes 0-1/90')
@@ -144,7 +144,7 @@ class TestSimpleBackend(TempFileTestCase):
             # Out of bounds request
             request = HttpRequest()
             request.META['HTTP_RANGE'] = 'bytes=0-90'
-            response = real_sendfile(request, self.filepath)
+            response = real_sendfile(request, self.filepath, accept_ranges=True)
             self.assertEqual(response['Content-range'], 'bytes */90')
             self.assertEqual(response.status_code, 416)
 
@@ -152,10 +152,19 @@ class TestSimpleBackend(TempFileTestCase):
             for hdr in ['bytes=-', 'bytes=foo', 'bytes=3-2']:
                 request = HttpRequest()
                 request.META['HTTP_RANGE'] = hdr
-                response = real_sendfile(request, self.filepath)
+                response = real_sendfile(request, self.filepath,
+                                         accept_ranges=True)
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response['Content-length'], '90')
                 self._verify_response_content(response, 0, 90)
+
+            # Without accept-ranges, it should be disabled
+            request = HttpRequest()
+            request.META['HTTP_RANGE'] = 'bytes=5-7'
+            response = real_sendfile(request, self.filepath)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response['Content-length'], '90')
+            self._verify_response_content(response, 0, 90)
 
 
 class TestXSendfileBackend(TempFileTestCase):
