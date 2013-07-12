@@ -61,7 +61,8 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
         attachment_filename = attachment_filename or os.path.basename(filename)
         response['Content-Disposition'] = 'attachment; filename="%s"' % attachment_filename
 
-    response['Content-length'] = os.path.getsize(filename)
+    if 'Content-Length' not in response:
+        response['Content-Length'] = os.path.getsize(filename)
     response['Content-Type'] = mimetype
     if not encoding:
         encoding = guessed_encoding
