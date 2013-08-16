@@ -58,8 +58,10 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
         
     response = _sendfile(request, filename, mimetype=mimetype)
     if attachment:
-        attachment_filename = attachment_filename or os.path.basename(filename)
-        response['Content-Disposition'] = 'attachment; filename="%s"' % attachment_filename
+        if attachment_filename:
+            response['Content-Disposition'] = 'attachment; filename="%s"' % attachment_filename
+        else:
+            response['Content-Disposition'] = 'attachment'
 
     response['Content-length'] = os.path.getsize(filename)
     response['Content-Type'] = mimetype
