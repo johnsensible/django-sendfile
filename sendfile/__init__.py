@@ -4,10 +4,7 @@ __version__ = '.'.join(map(str, VERSION))
 import os.path
 from mimetypes import guess_type
 from unidecode import unidecode
-try:
-    from django.utils.encoding import smart_text
-except ImportError:
-    from django.utils.encoding import smart_unicode as smart_text
+from django.utils.encoding import force_text
 from django.utils.http import urlquote
 
 
@@ -73,7 +70,7 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
             attachment_filename = os.path.basename(filename)
         parts = ['attachment']
         if attachment_filename:
-            attachment_filename = smart_text(attachment_filename)
+            attachment_filename = force_text(attachment_filename)
             parts.append('filename="%s"' % unidecode(attachment_filename))
             parts.append('filename*=UTF-8\'\'%s' % urlquote(attachment_filename))
         response['Content-Disposition'] = '; '.join(parts)
