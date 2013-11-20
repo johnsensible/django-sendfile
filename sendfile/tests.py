@@ -69,7 +69,7 @@ class TestSendfile(TempFileTestCase):
     def test_attachment(self):
         response = real_sendfile(HttpRequest(), self._get_readme(), attachment=True)
         self.assertTrue(response is not None)
-        self.assertEqual('attachment; filename="testfile.txt"; filename*=UTF-8\'\'testfile.txt', response['Content-Disposition'])
+        self.assertEqual('attachment; filename="testfile.txt"', response['Content-Disposition'])
 
     def test_attachment_filename_false(self):
         response = real_sendfile(HttpRequest(), self._get_readme(), attachment=True, attachment_filename=False)
@@ -79,7 +79,7 @@ class TestSendfile(TempFileTestCase):
     def test_attachment_filename(self):
         response = real_sendfile(HttpRequest(), self._get_readme(), attachment=True, attachment_filename='tests.txt')
         self.assertTrue(response is not None)
-        self.assertEqual('attachment; filename="tests.txt"; filename*=UTF-8\'\'tests.txt', response['Content-Disposition'])
+        self.assertEqual('attachment; filename="tests.txt"', response['Content-Disposition'])
 
     def test_attachment_filename_unicode(self):
         response = real_sendfile(HttpRequest(), self._get_readme(), attachment=True, attachment_filename='test’s.txt')
