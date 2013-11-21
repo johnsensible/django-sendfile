@@ -15,6 +15,7 @@ setup(
     license='BSD',
     
     requires=['Django (>=1.4.2)', 'Unidecode'],
+    install_requires=['Django>=1.4.2', 'Unidecode'],
 
     packages=['sendfile', 'sendfile.backends'],
     package_dir={
