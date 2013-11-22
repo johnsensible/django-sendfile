@@ -36,9 +36,14 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     '''
     create a response to send file using backend configured in SENDFILE_BACKEND
 
-    if attachment is True the content-disposition header will be set with either
-    the filename given or else the attachment_filename (of specified).  This
-    will typically prompt the user to download the file, rather than view it.
+    If attachment is True the content-disposition header will be set.
+    This will typically prompt the user to download the file, rather
+    than view it.  The content-disposition filename depends on the
+    value of attachment_filename:
+
+        None (default): Same as filename
+        False: No content-disposition filename
+        String: Value used as filename
 
     If no mimetype or encoding are specified, then they will be guessed via the
     filename (using the standard python mimetypes module)
@@ -58,8 +63,24 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
         
     response = _sendfile(request, filename, mimetype=mimetype)
     if attachment:
-        attachment_filename = attachment_filename or os.path.basename(filename)
-        response['Content-Disposition'] = 'attachment; filename="%s"' % attachment_filename
+        if attachment_filename is None:
+            attachment_filename = os.path.basename(filename)
+        parts = ['attachment']
+        if attachment_filename:
+            from unidecode import unidecode
+            try:
+                from django.utils.encoding import force_text
+            except ImportError:
+                # Django 1.3
+                from django.utils.encoding import force_unicode as force_text
+            attachment_filename = force_text(attachment_filename)
+            ascii_filename = unidecode(attachment_filename)
+            parts.append('filename="%s"' % ascii_filename)
+            if ascii_filename != attachment_filename:
+                from django.utils.http import urlquote
+                quoted_filename = urlquote(attachment_filename)
+                parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
+        response['Content-Disposition'] = '; '.join(parts)
 
     response['Content-length'] = os.path.getsize(filename)
     response['Content-Type'] = mimetype

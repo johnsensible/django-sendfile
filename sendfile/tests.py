@@ -71,10 +71,20 @@ class TestSendfile(TempFileTestCase):
         self.assertTrue(response is not None)
         self.assertEqual('attachment; filename="testfile.txt"', response['Content-Disposition'])
 
+    def test_attachment_filename_false(self):
+        response = real_sendfile(HttpRequest(), self._get_readme(), attachment=True, attachment_filename=False)
+        self.assertTrue(response is not None)
+        self.assertEqual('attachment', response['Content-Disposition'])
+
     def test_attachment_filename(self):
         response = real_sendfile(HttpRequest(), self._get_readme(), attachment=True, attachment_filename='tests.txt')
         self.assertTrue(response is not None)
         self.assertEqual('attachment; filename="tests.txt"', response['Content-Disposition'])
+
+    def test_attachment_filename_unicode(self):
+        response = real_sendfile(HttpRequest(), self._get_readme(), attachment=True, attachment_filename='test’s.txt')
+        self.assertTrue(response is not None)
+        self.assertEqual('attachment; filename="test\'s.txt"; filename*=UTF-8\'\'test%E2%80%99s.txt', response['Content-Disposition'])
 
 
 class TestXSendfileBackend(TempFileTestCase):
