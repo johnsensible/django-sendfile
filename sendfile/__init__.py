@@ -75,7 +75,8 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     else:
         mimetype = 'application/octet-stream'
 
-    response = _sendfile(request, filename, mimetype=mimetype)
+    response = _sendfile(request, filename, mimetype=mimetype,
+                         no_file_check=no_file_check)
     if attachment:
         if attachment_filename is None:
             attachment_filename = os.path.basename(filename)
