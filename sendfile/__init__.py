@@ -98,7 +98,7 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     if not no_file_check:
         response['Content-length'] = os.path.getsize(filename)
     response['Content-Type'] = mimetype
-    if not encoding:
+    if not encoding and not no_file_check:
         encoding = guessed_encoding
     if encoding:
         response['Content-Encoding'] = encoding
