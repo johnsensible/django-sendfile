@@ -11,16 +11,17 @@ def sendfile(request, filename, **kwargs):
     # Respect the If-Modified-Since header.
     statobj = os.stat(filename)
 
-    if not was_modified_since(request.META.get('HTTP_IF_MODIFIED_SINCE'),
-                              statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
+    if not was_modified_since(
+            request.META.get('HTTP_IF_MODIFIED_SINCE'),
+            statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
         return HttpResponseNotModified()
-    
-    
+
+
     response = HttpResponse(File(file(filename, 'rb')))
 
     response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
     return response
-    
+
 def was_modified_since(header=None, mtime=0, size=0):
     """
     Was something modified since the user last downloaded it?
@@ -52,4 +53,3 @@ def was_modified_since(header=None, mtime=0, size=0):
     except (AttributeError, ValueError, OverflowError):
         return True
     return False
-

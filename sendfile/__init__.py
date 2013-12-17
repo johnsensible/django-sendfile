@@ -53,8 +53,9 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     exists on the filesystem where stated.  If no_file_check is False,
     then sendfile() will simply encode the path without checking for
     its existence.  In this case it also won't set the Content-Length
-    header.  This mode can be useful when using sendfile() under a
-    proxy atop a remote store (eg S3).
+    or Content-Encoding header, so your surrounding proxy will need to
+    do that as needed.  This mode can be useful when using sendfile()
+    under a proxy atop a remote store (eg S3).
 
     '''
     _sendfile = _get_sendfile()
