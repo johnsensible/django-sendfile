@@ -59,12 +59,12 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     '''
     _sendfile = _get_sendfile()
 
-    if file_check and not os.path.exists(filename):
+    if not no_file_check and not os.path.exists(filename):
         from django.http import Http404
         raise Http404('"%s" does not exist' % filename)
 
 
-    if file_check:
+    if not no_file_check:
         guessed_mimetype, guessed_encoding = guess_type(filename)
         if mimetype is None:
             if guessed_mimetype:
@@ -95,7 +95,7 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
                 parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
         response['Content-Disposition'] = '; '.join(parts)
 
-    if file_check:
+    if not no_file_check:
         response['Content-length'] = os.path.getsize(filename)
     response['Content-Type'] = mimetype
     if not encoding:
