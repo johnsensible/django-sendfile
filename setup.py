@@ -11,7 +11,6 @@ setup(
     author='John Montgomery',
     author_email='john@sensibledevelopment.com',
     url='https://github.com/johnsensible/django-sendfile',
-    download_url='https://github.com/johnsensible/django-sendfile/archive/v%s.zip#egg=django-sendfile-%s' % (version, version),
     license='BSD',
     
     requires=['Django (>=1.3)', 'Unidecode'],
