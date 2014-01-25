@@ -135,6 +135,7 @@ Then the mataching location block in nginx.conf would be:
 And if you've want to serve a file from AWS S3 or from any other host with full url this might be the best solution. For example hiding an s3 query-string authenticated file to users.
 
 ::
+
     s3_authenticated_url = "https://bucket-name.s3.amazonaws.com/path/to/file.pdf?AWSAccessKeyId=****&Expires=****&Signature=****"
     sendfile(request, filename='s3_authenticated_url')
 
