@@ -50,43 +50,50 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     '''
     _sendfile = _get_sendfile()
 
-    if not os.path.exists(filename):
-        from django.http import Http404
-        raise Http404('"%s" does not exist' % filename)
+    try:
+        if not os.path.exists(filename):
+            from django.http import Http404
+            raise Http404('"%s" does not exist' % filename)
 
-    guessed_mimetype, guessed_encoding = guess_type(filename)
-    if mimetype is None:
-        if guessed_mimetype:
-            mimetype = guessed_mimetype
-        else:
-            mimetype = 'application/octet-stream'
-        
+        guessed_mimetype, guessed_encoding = guess_type(filename)
+        if mimetype is None:
+            if guessed_mimetype:
+                mimetype = guessed_mimetype
+            else:
+                mimetype = 'application/octet-stream'
+    except Exception:
+        pass
+
     response = _sendfile(request, filename, mimetype=mimetype)
-    if attachment:
-        if attachment_filename is None:
-            attachment_filename = os.path.basename(filename)
-        parts = ['attachment']
-        if attachment_filename:
-            from unidecode import unidecode
-            try:
-                from django.utils.encoding import force_text
-            except ImportError:
-                # Django 1.3
-                from django.utils.encoding import force_unicode as force_text
-            attachment_filename = force_text(attachment_filename)
-            ascii_filename = unidecode(attachment_filename)
-            parts.append('filename="%s"' % ascii_filename)
-            if ascii_filename != attachment_filename:
-                from django.utils.http import urlquote
-                quoted_filename = urlquote(attachment_filename)
-                parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
-        response['Content-Disposition'] = '; '.join(parts)
 
-    response['Content-length'] = os.path.getsize(filename)
-    response['Content-Type'] = mimetype
-    if not encoding:
-        encoding = guessed_encoding
-    if encoding:
-        response['Content-Encoding'] = encoding
+    try:
+        if attachment:
+            if attachment_filename is None:
+                attachment_filename = os.path.basename(filename)
+            parts = ['attachment']
+            if attachment_filename:
+                from unidecode import unidecode
+                try:
+                    from django.utils.encoding import force_text
+                except ImportError:
+                    # Django 1.3
+                    from django.utils.encoding import force_unicode as force_text
+                attachment_filename = force_text(attachment_filename)
+                ascii_filename = unidecode(attachment_filename)
+                parts.append('filename="%s"' % ascii_filename)
+                if ascii_filename != attachment_filename:
+                    from django.utils.http import urlquote
+                    quoted_filename = urlquote(attachment_filename)
+                    parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
+            response['Content-Disposition'] = '; '.join(parts)
+
+        response['Content-length'] = os.path.getsize(filename)
+        response['Content-Type'] = mimetype
+        if not encoding:
+            encoding = guessed_encoding
+        if encoding:
+            response['Content-Encoding'] = encoding
+    except Exception:
+        pass
 
     return response

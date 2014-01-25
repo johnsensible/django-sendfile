@@ -11,13 +11,13 @@ The interface is a single function `sendfile(request, filename, attachment=False
 ::
 
     from sendfile import sendfile
-    
+
     # send myfile.pdf to user
     return sendfile(request, '/home/john/myfile.pdf')
 
     # send myfile.pdf as an attachment (with name myfile.pdf)
     return sendfile(request, '/home/john/myfile.pdf', attachment=True)
-    
+
     # send myfile.pdf as an attachment with a different name
     return sendfile(request, '/home/john/myfile.pdf', attachment=True, attachment_filename='full-name.pdf')
 
@@ -132,10 +132,44 @@ Then the mataching location block in nginx.conf would be:
       root   /home/john/Development/django-sendfile/examples/protected_downloads;
     }
 
+And if you've want to serve a file from AWS S3 or from any other host with full url this might be the best solution. For example hiding an s3 query-string authenticated file to users.
+
+::
+    s3_authenticated_url = "https://bucket-name.s3.amazonaws.com/path/to/file.pdf?AWSAccessKeyId=****&Expires=****&Signature=****"
+    sendfile(request, filename='s3_authenticated_url')
+
+Jus add this into your django settings:
+
+::
+    SENDFILE_PROXY = '/s3-proteced-file'
+
+Maching with nginx configuration would be:
+
+::
+    location ~* ^/s3-proteced-file/(.*)
+    {
+        internal;
+        set $s3_bucket          'bucket-name';
+        resolver 8.8.8.8;
+
+        proxy_http_version     1.1;
+        proxy_set_header       Host $s3_bucket;
+        proxy_set_header       Authorization '';
+        proxy_hide_header      x-amz-id-2;
+        proxy_hide_header      x-amz-request-id;
+        proxy_ignore_headers   "Set-Cookie";
+        proxy_buffering        off;
+        proxy_intercept_errors on;
+
+        proxy_pass http://$1$is_args$args;
+    }
+
+NGINX Configuration from serve_s3_file_with_nginx_
+
 You need to pay attention to whether you have trailing slashes or not on the SENDFILE_URL and root values, otherwise you may not get the right URL being sent to NGINX and you may get 404s.  You should be able to see what file NGINX is trying to load in the error.log if this happens.  From there it should be fairly easy to work out what the right settings are.
 
 .. _mod_xsendfile: https://tn123.org/mod_xsendfile/
 .. _Apache: http://httpd.apache.org/
 .. _Lighthttpd: http://www.lighttpd.net/
 .. _mod_wsgi: http://code.google.com/p/modwsgi/
-
+.. _serve_s3_file_with_nginx: https://coderwall.com/p/rlguog
