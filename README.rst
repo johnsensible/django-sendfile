@@ -141,13 +141,14 @@ And if you've want to serve a file from AWS S3 or from any other host with full 
 Jus add this into your django settings:
 
 ::
+
     SENDFILE_PROXY = '/s3-proteced-file'
 
 Maching with nginx configuration would be:
 
 ::
-    location ~* ^/s3-proteced-file/(.*)
-    {
+
+    location ~* ^/s3-proteced-file/(.*) {
         internal;
         set $s3_bucket          'bucket-name';
         resolver 8.8.8.8;
@@ -162,6 +163,7 @@ Maching with nginx configuration would be:
         proxy_intercept_errors on;
 
         proxy_pass http://$1$is_args$args;
+
     }
 
 NGINX Configuration from serve_s3_file_with_nginx_
