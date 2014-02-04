@@ -32,7 +32,8 @@ def _get_sendfile():
 
 
 
-def sendfile(request, filename, attachment=False, attachment_filename=None, mimetype=None, encoding=None):
+def sendfile(request, filename, attachment=False, attachment_filename=None, mimetype=None, encoding=None,
+             accept_ranges=False):
     '''
     create a response to send file using backend configured in SENDFILE_BACKEND
 
@@ -47,6 +48,10 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
 
     If no mimetype or encoding are specified, then they will be guessed via the
     filename (using the standard python mimetypes module)
+
+    If accept_ranges is True, the Accept-Ranges HTTP header is added to the
+    response. It also enables the range request support in the
+    sendfile.backends.simple backend.
     '''
     _sendfile = _get_sendfile()
 
@@ -60,8 +65,8 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
             mimetype = guessed_mimetype
         else:
             mimetype = 'application/octet-stream'
-        
-    response = _sendfile(request, filename, mimetype=mimetype)
+
+    response = _sendfile(request, filename, mimetype=mimetype, accept_ranges=accept_ranges)
     if attachment:
         if attachment_filename is None:
             attachment_filename = os.path.basename(filename)
@@ -82,7 +87,10 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
                 parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
         response['Content-Disposition'] = '; '.join(parts)
 
-    response['Content-length'] = os.path.getsize(filename)
+    if accept_ranges:
+        response['Accept-Ranges'] = 'bytes'
+    if 'Content-Length' not in response:
+        response['Content-Length'] = os.path.getsize(filename)
     response['Content-Type'] = mimetype
     if not encoding:
         encoding = guessed_encoding
