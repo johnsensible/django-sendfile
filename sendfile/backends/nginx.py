@@ -1,10 +1,11 @@
 from django.http import HttpResponse
+from django.utils.encoding import smart_str
 
 from _internalredirect import _convert_file_to_url
 
 def sendfile(request, filename, **kwargs):
     response = HttpResponse()
     url = _convert_file_to_url(filename)
-    response['X-Accel-Redirect'] = url.encode('utf-8')
+    response['X-Accel-Redirect'] = smart_str(url)
 
     return response
