@@ -19,7 +19,7 @@ def sendfile(request, filename, **kwargs):
         return HttpResponseNotModified()
     
     
-    response = HttpResponse(File(open(filename, 'rb')))
+    response = HttpResponse(File(open(filename, 'rb')).chunks())
 
     response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
     return response
