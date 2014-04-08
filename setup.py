@@ -6,7 +6,7 @@ except ImportError:
     from distutils.command.build_py import build_py
 
 
-version=__import__('sendfile').__version__
+version = __import__('sendfile').__version__
 
 
 setup(
@@ -18,7 +18,7 @@ setup(
     author_email='john@sensibledevelopment.com',
     url='https://github.com/johnsensible/django-sendfile',
     license='BSD',
-    
+
     requires=['Django (>=1.3)', 'Unidecode'],
     install_requires=['Django>=1.3', 'Unidecode'],
 
@@ -27,10 +27,10 @@ setup(
         'sendfile': 'sendfile',
         'sendfile.backends': 'sendfile/backends',
     },
-    package_data = {
+    package_data={
         'sendfile': ['testfile.txt'],
     },
-    
+
     zip_safe=True,
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -43,5 +43,5 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 
-    cmdclass = {'build_py': build_py},
+    cmdclass={'build_py': build_py},
 )

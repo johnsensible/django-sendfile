@@ -4,6 +4,7 @@ from django.http import HttpResponse
 
 from ._internalredirect import _convert_file_to_url
 
+
 def sendfile(request, filename, **kwargs):
     response = HttpResponse()
     response['Location'] = _convert_file_to_url(filename)
@@ -13,4 +14,3 @@ def sendfile(request, filename, **kwargs):
     request.get_host = lambda: ''
 
     return response
-

@@ -21,7 +21,7 @@ class TempFileTestCase(TestCase):
     def setUp(self):
         super(TempFileTestCase, self).setUp()
         self.TEMP_FILE_ROOT = mkdtemp()
-    
+
     def tearDown(self):
         super(TempFileTestCase, self).tearDown()
         if os.path.exists(self.TEMP_FILE_ROOT):
@@ -41,7 +41,7 @@ class TestSendfile(TempFileTestCase):
         # set ourselves to be the sendfile backend
         settings.SENDFILE_BACKEND = 'sendfile.tests'
         _get_sendfile.clear()
-    
+
     def _get_readme(self):
         return self.ensure_file('testfile.txt')
 
