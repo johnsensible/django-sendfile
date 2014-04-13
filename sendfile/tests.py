@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.test import TestCase
 from django.http import HttpResponse, Http404, HttpRequest
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_bytes, smart_str
 import os.path
 from tempfile import mkdtemp
 import shutil
@@ -105,7 +105,7 @@ class TestXSendfileBackend(TempFileTestCase):
         filepath = self.ensure_file(u'péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(smart_str(filepath), response['X-Sendfile'])
+        self.assertEqual(smart_bytes(filepath), response['X-Sendfile'])
 
 
 class TestNginxBackend(TempFileTestCase):
