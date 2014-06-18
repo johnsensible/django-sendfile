@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.test import TestCase
 from django.http import HttpResponse, Http404, HttpRequest
+from django.utils.encoding import smart_str
 import os.path
 from tempfile import mkdtemp
 import shutil
@@ -20,7 +21,7 @@ class TempFileTestCase(TestCase):
     def setUp(self):
         super(TempFileTestCase, self).setUp()
         self.TEMP_FILE_ROOT = mkdtemp()
-    
+
     def tearDown(self):
         super(TempFileTestCase, self).tearDown()
         if os.path.exists(self.TEMP_FILE_ROOT):
@@ -40,7 +41,7 @@ class TestSendfile(TempFileTestCase):
         # set ourselves to be the sendfile backend
         settings.SENDFILE_BACKEND = 'sendfile.tests'
         _get_sendfile.clear()
-    
+
     def _get_readme(self):
         return self.ensure_file('testfile.txt')
 
@@ -54,7 +55,7 @@ class TestSendfile(TempFileTestCase):
         response = real_sendfile(HttpRequest(), self._get_readme())
         self.assertTrue(response is not None)
         self.assertEqual('text/plain', response['Content-Type'])
-        self.assertEqual(self._get_readme(), response.content)
+        self.assertEqual(self._get_readme(), smart_str(response.content))
 
     def test_set_mimetype(self):
         response = real_sendfile(HttpRequest(), self._get_readme(), mimetype='text/plain')
@@ -104,7 +105,7 @@ class TestXSendfileBackend(TempFileTestCase):
         filepath = self.ensure_file(u'péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(filepath, response['X-Sendfile'].decode('utf-8'))
+        self.assertEqual(smart_str(filepath), response['X-Sendfile'])
 
 
 class TestNginxBackend(TempFileTestCase):
@@ -126,4 +127,4 @@ class TestNginxBackend(TempFileTestCase):
         filepath = self.ensure_file(u'péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(u'/private/péter_là_gueule.txt', response['X-Accel-Redirect'].decode('utf-8'))
+        self.assertEqual('/private/p%C3%A9ter_l%C3%A0_gueule.txt', response['X-Accel-Redirect'])

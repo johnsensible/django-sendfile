@@ -1,11 +1,15 @@
 import os
 import stat
 import re
-from email.Utils import parsedate_tz, mktime_tz
+try:
+    from email.utils import parsedate_tz, mktime_tz
+except ImportError:
+    from email.Utils import parsedate_tz, mktime_tz
 
 from django.core.files.base import File
 from django.http import HttpResponse, HttpResponseNotModified
 from django.utils.http import http_date
+
 
 def sendfile(request, filename, **kwargs):
     # Respect the If-Modified-Since header.
@@ -14,13 +18,13 @@ def sendfile(request, filename, **kwargs):
     if not was_modified_since(request.META.get('HTTP_IF_MODIFIED_SINCE'),
                               statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
         return HttpResponseNotModified()
-    
-    
-    response = HttpResponse(File(file(filename, 'rb')))
+
+    response = HttpResponse(File(open(filename, 'rb')).chunks())
 
     response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
     return response
-    
+
+
 def was_modified_since(header=None, mtime=0, size=0):
     """
     Was something modified since the user last downloaded it?
@@ -52,4 +56,3 @@ def was_modified_since(header=None, mtime=0, size=0):
     except (AttributeError, ValueError, OverflowError):
         return True
     return False
-

@@ -8,12 +8,13 @@ from sendfile import sendfile
 
 from .models import Download
 
+
 def download(request, download_id):
     download = get_object_or_404(Download, pk=download_id)
     if download.is_public:
         return sendfile(request, download.file.path)
     return _auth_download(request, download)
-    
+
 
 @login_required
 def _auth_download(request, download):
@@ -29,5 +30,5 @@ def download_list(request):
     else:
         downloads = downloads.filter(is_public=True)
     return render_to_response('download/download_list.html',
-                              {'download_list': downloads}, 
+                              {'download_list': downloads},
                               context_instance=RequestContext(request))
