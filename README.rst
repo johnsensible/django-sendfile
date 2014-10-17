@@ -132,33 +132,16 @@ Then the mataching location block in nginx.conf would be:
       root   /home/john/Development/django-sendfile/examples/protected_downloads;
     }
 
-And if you've want to serve a file from AWS S3 or from any other host with full url this might be the best solution. For example hiding an s3 query-string authenticated file to users.
+If you want to serve a file from a remote storage via HTTP protocol. All you need to do is set the proxy directives in nginx.conf:
 
 ::
 
-    s3_authenticated_url = "https://bucket-name.s3.amazonaws.com/path/to/file.pdf?AWSAccessKeyId=****&Expires=****&Signature=****"
-    sendfile(request, filename='s3_authenticated_url')
-
-Jus add this into your django settings:
-
-::
-
-    SENDFILE_PROXY = '/s3-proteced-file'
-
-Maching with nginx configuration would be:
-
-::
-
-    location ~* ^/s3-proteced-file/(.*) {
+    location ~* ^/protected/(.*) {
         internal;
-        set $s3_bucket          'bucket-name';
-        resolver 8.8.8.8;
 
+        resolver 8.8.8.8;
         proxy_http_version     1.1;
-        proxy_set_header       Host $s3_bucket;
         proxy_set_header       Authorization '';
-        proxy_hide_header      x-amz-id-2;
-        proxy_hide_header      x-amz-request-id;
         proxy_ignore_headers   "Set-Cookie";
         proxy_buffering        off;
         proxy_intercept_errors on;
@@ -167,7 +150,12 @@ Maching with nginx configuration would be:
 
     }
 
-NGINX Configuration from serve_s3_file_with_nginx_
+Then on ``sendfile()`` filename argument just replace the file path to url.
+
+::
+
+    remote_file = "scheme://netloc/path;parameters?query#fragment"
+    sendfile(request, filename='remote_file')
 
 You need to pay attention to whether you have trailing slashes or not on the SENDFILE_URL and root values, otherwise you may not get the right URL being sent to NGINX and you may get 404s.  You should be able to see what file NGINX is trying to load in the error.log if this happens.  From there it should be fairly easy to work out what the right settings are.
 
@@ -175,4 +163,3 @@ You need to pay attention to whether you have trailing slashes or not on the SEN
 .. _Apache: http://httpd.apache.org/
 .. _Lighthttpd: http://www.lighttpd.net/
 .. _mod_wsgi: http://code.google.com/p/modwsgi/
-.. _serve_s3_file_with_nginx: https://coderwall.com/p/rlguog

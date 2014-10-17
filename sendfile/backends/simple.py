@@ -1,34 +1,45 @@
 import os
 import stat
 import re
-import urllib
-from email.Utils import parsedate_tz, mktime_tz
+import contextlib
+import urllib2
+from urlparse import urlparse
+try:
+    from email.utils import parsedate_tz, mktime_tz
+except ImportError:
+    from email.Utils import parsedate_tz, mktime_tz
 
 from django.core.files.base import File
 from django.http import HttpResponse, HttpResponseNotModified
-from django.utils.http import http_date
+from django.utils.http import http_date, parse_http_date
+
 
 def sendfile(request, filename, **kwargs):
     # Respect the If-Modified-Since header.
+    parseresult = urlparse(filename)
 
-    try:
+    if parseresult.scheme:
+        with contextlib.closing(urllib2.urlopen(filename)) as result:
+            headers = result.headers.dict
+            data = result.read()
+        lastmodified = parse_http_date(headers['last-modified'])
+        contentlength = int(headers['content-length'])
+        response = HttpResponse(data)
+
+    else:
         statobj = os.stat(filename)
+        lastmodified = statobj[stat.ST_MTIME]
+        contentlength = statobj[stat.ST_SIZE]
+        response = HttpResponse(File(open(filename, 'rb')).chunks())
 
-        if not was_modified_since(request.META.get('HTTP_IF_MODIFIED_SINCE'),
-                                  statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
-            return HttpResponseNotModified()
+    if not was_modified_since(request.META.get('HTTP_IF_MODIFIED_SINCE'),
+                              lastmodified, contentlength):
+        return HttpResponseNotModified()
 
-
-        response = HttpResponse(File(file(filename, 'rb')))
-
-        response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
-
-    except Exception:
-        request = urllib.urlopen(filename)
-        response = HttpResponse(request.read())
-        response['Content-Type'] = request.info().typeheader
+    response["Last-Modified"] = http_date(lastmodified)
 
     return response
+
 
 def was_modified_since(header=None, mtime=0, size=0):
     """
@@ -61,4 +72,3 @@ def was_modified_since(header=None, mtime=0, size=0):
     except (AttributeError, ValueError, OverflowError):
         return True
     return False
-
