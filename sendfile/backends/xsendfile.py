@@ -4,6 +4,6 @@ from django.utils.encoding import smart_str
 
 def sendfile(request, filename, **kwargs):
     response = HttpResponse()
-    response['X-Sendfile'] = smart_str(unicode(filename))
+    response['X-Sendfile'] = smart_str(filename)
 
     return response
