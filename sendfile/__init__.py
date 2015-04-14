@@ -26,7 +26,7 @@ def _get_sendfile():
 
     backend = getattr(settings, 'SENDFILE_BACKEND', None)
     if not backend:
-        raise ImproperlyConfigured('You must specify a valued for SENDFILE_BACKEND')
+        raise ImproperlyConfigured('You must specify a value for SENDFILE_BACKEND')
     module = import_module(backend)
     return module.sendfile
 
