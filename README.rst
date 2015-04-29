@@ -123,7 +123,7 @@ For example though, if I use the django settings:
     SENDFILE_ROOT = '/home/john/Development/django-sendfile/examples/protected_downloads/protected'
     SENDFILE_URL = '/protected'
 
-Then the mataching location block in nginx.conf would be:
+Then the matching location block in nginx.conf would be:
 
 ::
 
