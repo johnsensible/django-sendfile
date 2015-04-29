@@ -1,6 +1,9 @@
 import os
 import stat
 import re
+import contextlib
+import urllib2
+from urlparse import urlparse
 try:
     from email.utils import parsedate_tz, mktime_tz
 except ImportError:
@@ -8,20 +11,33 @@ except ImportError:
 
 from django.core.files.base import File
 from django.http import HttpResponse, HttpResponseNotModified
-from django.utils.http import http_date
+from django.utils.http import http_date, parse_http_date
 
 
 def sendfile(request, filename, **kwargs):
     # Respect the If-Modified-Since header.
-    statobj = os.stat(filename)
+    parseresult = urlparse(filename)
+
+    if parseresult.scheme:
+        with contextlib.closing(urllib2.urlopen(filename)) as result:
+            headers = result.headers.dict
+            data = result.read()
+        lastmodified = parse_http_date(headers['last-modified'])
+        contentlength = int(headers['content-length'])
+        response = HttpResponse(data)
+
+    else:
+        statobj = os.stat(filename)
+        lastmodified = statobj[stat.ST_MTIME]
+        contentlength = statobj[stat.ST_SIZE]
+        response = HttpResponse(File(open(filename, 'rb')).chunks())
 
     if not was_modified_since(request.META.get('HTTP_IF_MODIFIED_SINCE'),
-                              statobj[stat.ST_MTIME], statobj[stat.ST_SIZE]):
+                              lastmodified, contentlength):
         return HttpResponseNotModified()
 
-    response = HttpResponse(File(open(filename, 'rb')).chunks())
+    response["Last-Modified"] = http_date(lastmodified)
 
-    response["Last-Modified"] = http_date(statobj[stat.ST_MTIME])
     return response
 
 

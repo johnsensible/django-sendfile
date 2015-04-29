@@ -1,7 +1,10 @@
 VERSION = (0, 3, 6)
 __version__ = '.'.join(map(str, VERSION))
 
-import os.path
+import os
+import contextlib
+import urllib2
+from urlparse import urlparse
 from mimetypes import guess_type
 
 
@@ -50,21 +53,32 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     '''
     _sendfile = _get_sendfile()
 
-    if not os.path.exists(filename):
-        from django.http import Http404
-        raise Http404('"%s" does not exist' % filename)
+    parseresult = urlparse(filename)
 
-    guessed_mimetype, guessed_encoding = guess_type(filename)
-    if mimetype is None:
-        if guessed_mimetype:
-            mimetype = guessed_mimetype
-        else:
-            mimetype = 'application/octet-stream'
-        
+    if parseresult.scheme:
+        basename = os.path.basename(parseresult.path)
+        with contextlib.closing(urllib2.urlopen(filename)) as result:
+            headers = result.headers.dict
+        mimetype = headers['content-type']
+        contentlength = headers['content-length']
+
+    else:
+        if not os.path.exists(filename):
+            from django.http import Http404
+            raise Http404('"%s" does not exist' % filename)
+
+        guessed_mimetype, guessed_encoding = guess_type(filename)
+        if mimetype is None:
+            if guessed_mimetype:
+                mimetype = guessed_mimetype
+            else:
+                mimetype = 'application/octet-stream'
+
     response = _sendfile(request, filename, mimetype=mimetype)
+
     if attachment:
         if attachment_filename is None:
-            attachment_filename = os.path.basename(filename)
+            attachment_filename = basename if parseresult.scheme else os.path.basename(filename)
         parts = ['attachment']
         if attachment_filename:
             from unidecode import unidecode
@@ -82,10 +96,11 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
                 parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
         response['Content-Disposition'] = '; '.join(parts)
 
-    response['Content-length'] = os.path.getsize(filename)
+    response['Content-length'] = contentlength if parseresult.scheme else os.path.getsize(filename)
     response['Content-Type'] = mimetype
+
     if not encoding:
-        encoding = guessed_encoding
+        encoding = guessed_encoding if not parseresult.scheme else None
     if encoding:
         response['Content-Encoding'] = encoding
 
