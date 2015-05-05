@@ -127,4 +127,4 @@ class TestNginxBackend(TempFileTestCase):
         filepath = self.ensure_file(u'péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual('/private/p%C3%A9ter_l%C3%A0_gueule.txt', response['X-Accel-Redirect'])
+        self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), response['X-Accel-Redirect'])
