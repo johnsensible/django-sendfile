@@ -3,6 +3,7 @@ __version__ = '.'.join(map(str, VERSION))
 
 import os.path
 from mimetypes import guess_type
+import unicodedata
 
 
 def _lazy_load(fn):
@@ -70,7 +71,6 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
             attachment_filename = os.path.basename(filename)
         parts = ['attachment']
         if attachment_filename:
-            import unicodedata
             try:
                 from django.utils.encoding import force_text
             except ImportError:
