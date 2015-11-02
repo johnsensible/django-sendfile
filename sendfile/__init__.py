@@ -8,13 +8,16 @@ import unicodedata
 
 def _lazy_load(fn):
     _cached = []
+
     def _decorated():
         if not _cached:
             _cached.append(fn())
         return _cached[0]
+
     def clear():
         while _cached:
             _cached.pop()
+
     _decorated.clear = clear
     return _decorated
 
@@ -35,9 +38,8 @@ def _get_sendfile():
     return module.sendfile
 
 
-
-def sendfile(request, filename, attachment=False, attachment_filename=None, mimetype=None, encoding=None):
-    '''
+def sendfile(request, filename, attachment=False, inline=False, attachment_filename=None, mimetype=None, encoding=None):
+    """
     create a response to send file using backend configured in SENDFILE_BACKEND
 
     If attachment is True the content-disposition header will be set.
@@ -51,7 +53,7 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
 
     If no mimetype or encoding are specified, then they will be guessed via the
     filename (using the standard python mimetypes module)
-    '''
+    """
     _sendfile = _get_sendfile()
 
     if not os.path.exists(filename):
@@ -64,12 +66,15 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
             mimetype = guessed_mimetype
         else:
             mimetype = 'application/octet-stream'
-        
+
     response = _sendfile(request, filename, mimetype=mimetype)
     if attachment:
         if attachment_filename is None:
             attachment_filename = os.path.basename(filename)
-        parts = ['attachment']
+        if inline:
+            parts = ['inline']
+        else:
+            parts = ['attachment']
         if attachment_filename:
             try:
                 from django.utils.encoding import force_text
@@ -77,7 +82,7 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
                 # Django 1.3
                 from django.utils.encoding import force_unicode as force_text
             attachment_filename = force_text(attachment_filename)
-            ascii_filename = unicodedata.normalize('NFKD', attachment_filename).encode('ascii','ignore') 
+            ascii_filename = unicodedata.normalize('NFKD', attachment_filename).encode('ascii', 'ignore')
             parts.append('filename="%s"' % ascii_filename)
             if ascii_filename != attachment_filename:
                 from django.utils.http import urlquote
