@@ -21,7 +21,8 @@ The interface is a single function `sendfile(request, filename, attachment=False
     # send myfile.pdf as an attachment with a different name
     return sendfile(request, '/home/john/myfile.pdf', attachment=True, attachment_filename='full-name.pdf')
 
-
+    # send myfile.pdf as an inline attachment with a different name
+    return sendfile(request, '/home/john/myfile.pdf', attachment=True, inline=True, attachment_filename='full-name.pdf')
 
 Backends are specified using the setting `SENDFILE_BACKEND`.  Currenly available backends are:
 
