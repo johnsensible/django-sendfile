@@ -1,7 +1,7 @@
 import os.path
 
 from django.conf import settings
-from django.utils.encoding import force_text, force_bytes
+from django.utils.encoding import smart_text, smart_bytes
 
 try:
     from urllib.parse import quote
@@ -19,6 +19,6 @@ def _convert_file_to_url(filename):
         url.insert(1, head)
 
     # Python3 urllib.parse.quote accepts both unicode and bytes, while Python2 urllib.quote only accepts bytes.
-    # So force bytes for quoting and then go back to unicode.
-    url = [force_bytes(url_component) for url_component in url]
-    return force_text(quote(b'/'.join(url)))
+    # So use bytes for quoting and then go back to unicode.
+    url = [smart_bytes(url_component) for url_component in url]
+    return smart_text(quote(b'/'.join(url)))
