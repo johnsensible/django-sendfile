@@ -106,8 +106,10 @@ All files are stored in a folder called 'private'.  We forbid access to this fol
 Alledgedly `IS_SUBREQ` can be used to `perform the same job <http://www.mail-archive.com/django-users@googlegroups.com/msg96718.html>`_, but I was unable to get this working.
 
 
-Nginx backend
+Nginx (>=1.5.9) backend
 =============
+
+Please note that as of sendfile 0.3.11 this module only works with nginx versions >= 1.5.9, due to adding support for unicode file paths. For discussion see `#45 <https://github.com/johnsensible/django-sendfile/issues/45>`_ and `#56 <https://github.com/johnsensible/django-sendfile/pull/56>`_
 
 As with the mod_wsgi backend you need to set two extra settings:
 
