@@ -114,7 +114,7 @@ As with the mod_wsgi backend you need to set two extra settings:
 * `SENDFILE_ROOT` - this is a directoy where all files that will be used with sendfile must be located
 * `SENDFILE_URL` - internal URL prefix for all files served via sendfile
 
-You then need to configure nginx to only allow internal access to the files you wish to serve.  More details on this are here http://wiki.nginx.org/XSendfile
+You then need to configure nginx to only allow internal access to the files you wish to serve.  More details on this `are here <https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/>`_.
 
 For example though, if I use the django settings:
 
