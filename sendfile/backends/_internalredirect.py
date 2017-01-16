@@ -9,7 +9,7 @@ except ImportError:
     from urllib import quote
 
 
-def _convert_file_to_url(filename):
+def _convert_file_to_url(filename, quote_url=True):
     relpath = os.path.relpath(filename, settings.SENDFILE_ROOT)
 
     url = [settings.SENDFILE_URL]
@@ -21,4 +21,7 @@ def _convert_file_to_url(filename):
     # Python3 urllib.parse.quote accepts both unicode and bytes, while Python2 urllib.quote only accepts bytes.
     # So use bytes for quoting and then go back to unicode.
     url = [smart_bytes(url_component) for url_component in url]
-    return smart_text(quote(b'/'.join(url)))
+    url = b'/'.join(url)
+    if quote_url:
+        url = quote(url)
+    return smart_text(url)
