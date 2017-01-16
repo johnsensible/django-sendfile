@@ -92,6 +92,20 @@ class TestSendfile(TempFileTestCase):
         self.assertTrue(response is not None)
         self.assertEqual('attachment; filename="tests.txt"; filename*=UTF-8\'\'test%E2%80%99s.txt', response['Content-Disposition'])
 
+    def test_override_backend(self):
+        def overriden_sendfile(*args, **kwargs):
+            # Add an extra header to the respone
+            response = sendfile(*args, **kwargs)
+            response['X-Backend-Overriden'] = 'yes'
+            return response
+
+        response = real_sendfile(HttpRequest(), self._get_readme(), backend=overriden_sendfile)
+        self.assertTrue(response is not None)
+        self.assertEqual('text/plain', response['Content-Type'])
+        self.assertEqual(self._get_readme(), smart_str(response.content))
+
+        self.assertEqual('yes', response['X-Backend-Overriden'])
+
 
 class TestXSendfileBackend(TempFileTestCase):
 

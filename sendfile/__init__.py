@@ -36,7 +36,7 @@ def _get_sendfile():
 
 
 
-def sendfile(request, filename, attachment=False, attachment_filename=None, mimetype=None, encoding=None):
+def sendfile(request, filename, attachment=False, attachment_filename=None, mimetype=None, encoding=None, backend=None):
     '''
     create a response to send file using backend configured in SENDFILE_BACKEND
 
@@ -52,7 +52,7 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     If no mimetype or encoding are specified, then they will be guessed via the
     filename (using the standard python mimetypes module)
     '''
-    _sendfile = _get_sendfile()
+    _sendfile = backend or _get_sendfile()
 
     if not os.path.exists(filename):
         from django.http import Http404
