@@ -77,8 +77,8 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
                 # Django 1.3
                 from django.utils.encoding import force_unicode as force_text
             attachment_filename = force_text(attachment_filename)
-            ascii_filename = unicodedata.normalize('NFKD', attachment_filename).encode('ascii','ignore') 
-            parts.append('filename="%s"' % ascii_filename)
+            ascii_filename = unicodedata.normalize('NFKD', attachment_filename).encode('ascii','ignore')
+            parts.append('filename="%s"' % (ascii_filename if isinstance(ascii_filename, str) else ascii_filename.decode()))
             if ascii_filename != attachment_filename:
                 from django.utils.http import urlquote
                 quoted_filename = urlquote(attachment_filename)
