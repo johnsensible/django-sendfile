@@ -1,5 +1,7 @@
 # coding=utf-8
 
+from __future__ import unicode_literals
+
 from django.conf import settings
 from django.test import TestCase
 from django.http import HttpResponse, Http404, HttpRequest
@@ -107,7 +109,7 @@ class TestXSendfileBackend(TempFileTestCase):
         self.assertEqual(filepath, response['X-Sendfile'])
 
     def test_xsendfile_header_containing_unicode(self):
-        filepath = self.ensure_file(u'péter_là_gueule.txt')
+        filepath = self.ensure_file('péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
         self.assertEqual(smart_str(filepath), response['X-Sendfile'])
@@ -129,7 +131,7 @@ class TestNginxBackend(TempFileTestCase):
         self.assertEqual('/private/readme.txt', response['X-Accel-Redirect'])
 
     def test_xaccelredirect_header_containing_unicode(self):
-        filepath = self.ensure_file(u'péter_là_gueule.txt')
+        filepath = self.ensure_file('péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
         self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), unquote(response['X-Accel-Redirect']))
