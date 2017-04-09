@@ -1,6 +1,6 @@
-from django.views.static import serve
-
 import os.path
+
+from django.views.static import serve
 
 
 def sendfile(request, filename, **kwargs):

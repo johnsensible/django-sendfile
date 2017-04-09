@@ -1,10 +1,4 @@
-from distutils.core import setup
-
-try:
-    from distutils.command.build_py import build_py_2to3 as build_py
-except ImportError:
-    from distutils.command.build_py import build_py
-
+from setuptools import setup
 
 version = __import__('sendfile').__version__
 
@@ -18,30 +12,34 @@ setup(
     author_email='john@sensibledevelopment.com',
     url='https://github.com/johnsensible/django-sendfile',
     license='BSD',
-
-    requires=['Django (>=1.3)'],
-    install_requires=['Django>=1.3'],
-
+    install_requires=['Django>=1.8'],
     packages=['sendfile', 'sendfile.backends'],
     package_dir={
         'sendfile': 'sendfile',
         'sendfile.backends': 'sendfile/backends',
     },
-    package_data={
-        'sendfile': ['testfile.txt'],
-    },
-
     zip_safe=True,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
+        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.9',
+        'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-
-    cmdclass={'build_py': build_py},
 )

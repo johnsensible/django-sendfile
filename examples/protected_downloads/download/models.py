@@ -1,8 +1,8 @@
-from django.db import models
-
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
+from django.db import models
+from django.urls import reverse
 
 sendfile_storage = FileSystemStorage(location=settings.SENDFILE_ROOT)
 
@@ -17,9 +17,8 @@ class Download(models.Model):
     def is_user_allowed(self, user):
         return self.users.filter(pk=user.pk).exists()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('download', [self.pk], {})
+        return reverse('download', [self.pk], {})
