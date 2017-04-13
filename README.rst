@@ -11,13 +11,13 @@ The interface is a single function `sendfile(request, filename, attachment=False
 ::
 
     from sendfile import sendfile
-    
+
     # send myfile.pdf to user
     return sendfile(request, '/home/john/myfile.pdf')
 
     # send myfile.pdf as an attachment (with name myfile.pdf)
     return sendfile(request, '/home/john/myfile.pdf', attachment=True)
-    
+
     # send myfile.pdf as an attachment with a different name
     return sendfile(request, '/home/john/myfile.pdf', attachment=True, attachment_filename='full-name.pdf')
 
@@ -134,8 +134,13 @@ Then the matching location block in nginx.conf would be:
 
 You need to pay attention to whether you have trailing slashes or not on the SENDFILE_URL and root values, otherwise you may not get the right URL being sent to NGINX and you may get 404s.  You should be able to see what file NGINX is trying to load in the error.log if this happens.  From there it should be fairly easy to work out what the right settings are.
 
+Also if you are willing to use django-sendfile with Nginx older than 1.5.9, you need to setup the configuration setting in django settings for specifying Nginx version like this:
+
+::
+
+    NGINX_VERSION = '1.4.6'
+
 .. _mod_xsendfile: https://tn123.org/mod_xsendfile/
 .. _Apache: http://httpd.apache.org/
 .. _Lighthttpd: http://www.lighttpd.net/
 .. _mod_wsgi: http://code.google.com/p/modwsgi/
-
