@@ -1,8 +1,7 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render_to_response
-from django.http import HttpResponseForbidden
 from django.db.models import Q
-from django.template import RequestContext
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, render
 
 from sendfile import sendfile
 
@@ -29,6 +28,4 @@ def download_list(request):
         downloads = downloads.filter(Q(is_public=True) | Q(users=request.user))
     else:
         downloads = downloads.filter(is_public=True)
-    return render_to_response('download/download_list.html',
-                              {'download_list': downloads},
-                              context_instance=RequestContext(request))
+    return render(request, 'download/download_list.html', {'download_list': downloads})

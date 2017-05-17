@@ -1,10 +1,7 @@
 import os
-import stat
 import re
-try:
-    from email.utils import parsedate_tz, mktime_tz
-except ImportError:
-    from email.Utils import parsedate_tz, mktime_tz
+import stat
+from email.utils import mktime_tz, parsedate_tz
 
 from django.core.files.base import File
 from django.http import HttpResponse, HttpResponseNotModified
