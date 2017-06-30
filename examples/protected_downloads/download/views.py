@@ -6,7 +6,7 @@ from django.template import RequestContext
 
 from sendfile import sendfile
 
-from .models import Download
+from download.models import Download
 
 
 def download(request, download_id):

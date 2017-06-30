@@ -23,3 +23,6 @@ class Download(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('download', [self.pk], {})
+
+    class Meta:
+        app_label = 'download'

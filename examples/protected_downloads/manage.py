@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import
+# from __future__ import absolute_import
 
 #!/usr/bin/env python
 import os
 import sys
-
-# Add ../multiseek to sys.path
 
 sys.path = [ os.path.join(os.path.dirname(__file__), '..', '..'), ] + sys.path
 
