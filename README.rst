@@ -2,7 +2,8 @@
 Django Sendfile
 ===============
 
-[![Build Status](https://travis-ci.org/mpasternak/django-sendfile.svg?branch=master)](https://travis-ci.org/mpasternak/django-sendfile)
+.. image:: https://img.shields.io/travis/mpasternak/django-sendfile.svg
+        :target: https://travis-ci.org/mpasternak/django-sendfile
 
 This is a wrapper around web-server specific methods for sending files to web clients.  This is useful when Django needs to check permissions associated files, but does not want to serve the actual bytes of the file itself.  i.e. as serving large files is not what Django is made for.
 
