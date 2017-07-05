@@ -11,12 +11,7 @@ from django.utils.encoding import smart_str
 import os.path
 from tempfile import mkdtemp
 import shutil
-from sendfile import sendfile as real_sendfile, _get_sendfile
-
-try:
-    unicode is not None
-except:
-    unicode = str
+from sendfile.core import sendfile as real_sendfile, _get_sendfile
 
 try:
     from urllib.parse import unquote
