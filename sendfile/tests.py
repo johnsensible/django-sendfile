@@ -1,5 +1,9 @@
 # coding=utf-8
 
+from __future__ import unicode_literals
+
+import six
+
 from django.conf import settings
 from django.test import TestCase
 from django.http import HttpResponse, Http404, HttpRequest
@@ -7,7 +11,7 @@ from django.utils.encoding import smart_str
 import os.path
 from tempfile import mkdtemp
 import shutil
-from sendfile import sendfile as real_sendfile, _get_sendfile
+from sendfile.core import sendfile as real_sendfile, _get_sendfile
 
 try:
     from urllib.parse import unquote
@@ -107,7 +111,7 @@ class TestXSendfileBackend(TempFileTestCase):
         self.assertEqual(filepath, response['X-Sendfile'])
 
     def test_xsendfile_header_containing_unicode(self):
-        filepath = self.ensure_file(u'péter_là_gueule.txt')
+        filepath = self.ensure_file('péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
         self.assertEqual(smart_str(filepath), response['X-Sendfile'])
@@ -129,10 +133,14 @@ class TestNginxBackend(TempFileTestCase):
         self.assertEqual('/private/readme.txt', response['X-Accel-Redirect'])
 
     def test_xaccelredirect_header_containing_unicode(self):
-        filepath = self.ensure_file(u'péter_là_gueule.txt')
+        filepath = self.ensure_file('péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), unquote(response['X-Accel-Redirect']))
+        s = '/private/péter_là_gueule.txt'
+        if six.PY2:
+            s = s.encode("utf-8")
+        self.assertEqual(s, unquote(response['X-Accel-Redirect']))
+                         
 
 
 class TestModWsgiBackend(TempFileTestCase):
@@ -151,7 +159,10 @@ class TestModWsgiBackend(TempFileTestCase):
         self.assertEqual('/private/readme.txt', response['Location'])
 
     def test_location_header_containing_unicode(self):
-        filepath = self.ensure_file(u'péter_là_gueule.txt')
+        filepath = self.ensure_file('péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), unquote(response['Location']))
+        s = '/private/péter_là_gueule.txt'
+        if six.PY2:
+            s = s.encode("utf-8")
+        self.assertEqual(s, unquote(response['Location']))

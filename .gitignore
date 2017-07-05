@@ -9,3 +9,5 @@
 /lib
 /build
 .Python
+.tox
+.idea
