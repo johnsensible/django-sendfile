@@ -1,0 +1,30 @@
+dist: trusty
+sudo: false
+language: python
+cache: pip
+matrix:
+  include:
+    - python: '2.7'
+      env: DJANGO=django18
+    - python: '2.7'
+      env: DJANGO=django110
+    - python: '2.7'
+      env: DJANGO=django111
+    - python: '3.2'
+      env: DJANGO=django18
+    - python: '3.3'
+      env: DJANGO=django18
+    - python: '3.4'
+      env: DJANGO=django110
+    - python: '3.4'
+      env: DJANGO=django111
+    - python: '3.5'
+      env: DJANGO=django110
+    - python: '3.5'
+      env: DJANGO=django111
+    - python: '3.6'
+      env: DJANGO=django111
+install:
+  - pip install tox
+script:
+  - tox -e py${TRAVIS_PYTHON_VERSION//.}-${DJANGO} -- -v 2
