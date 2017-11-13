@@ -157,7 +157,7 @@ class TestModWsgiBackend(TempFileTestCase):
         self.assertEqual('/private/readme.txt', response['Location'])
 
     def test_location_header_containing_unicode(self):
-        filepath = self.ensure_file(u'péter_là_gueule.txt')
+        filepath = self.ensure_file('péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
         path = '/private/péter_là_gueule.txt'
