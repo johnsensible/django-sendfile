@@ -10,6 +10,7 @@ import os.path
 from tempfile import mkdtemp
 import shutil
 from sendfile import sendfile as real_sendfile, _get_sendfile
+import six
 
 try:
     from urllib.parse import unquote
@@ -134,7 +135,10 @@ class TestNginxBackend(TempFileTestCase):
         filepath = self.ensure_file('péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), unquote(response['X-Accel-Redirect']))
+        path = '/private/péter_là_gueule.txt'
+        if six.PY2:
+            path = path.encode('utf-8')
+        self.assertEqual(path, unquote(response['X-Accel-Redirect']))
 
 
 class TestModWsgiBackend(TempFileTestCase):
@@ -156,4 +160,7 @@ class TestModWsgiBackend(TempFileTestCase):
         filepath = self.ensure_file(u'péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), unquote(response['Location']))
+        path = '/private/péter_là_gueule.txt'
+        if six.PY2:
+            path = path.encode('utf-8')
+        self.assertEqual(path, unquote(response['Location']))
