@@ -64,25 +64,27 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
             mimetype = guessed_mimetype
         else:
             mimetype = 'application/octet-stream'
-        
+
     response = _sendfile(request, filename, mimetype=mimetype)
+    parts = []
     if attachment:
         if attachment_filename is None:
             attachment_filename = os.path.basename(filename)
-        parts = ['attachment']
-        if attachment_filename:
-            try:
-                from django.utils.encoding import force_text
-            except ImportError:
-                # Django 1.3
-                from django.utils.encoding import force_unicode as force_text
-            attachment_filename = force_text(attachment_filename)
-            ascii_filename = unicodedata.normalize('NFKD', attachment_filename).encode('ascii','ignore') 
-            parts.append('filename="%s"' % ascii_filename)
-            if ascii_filename != attachment_filename:
-                from django.utils.http import urlquote
-                quoted_filename = urlquote(attachment_filename)
-                parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
+        parts.append('attachment')
+    if attachment_filename:
+        try:
+            from django.utils.encoding import force_text
+        except ImportError:
+            # Django 1.3
+            from django.utils.encoding import force_unicode as force_text
+        attachment_filename = force_text(attachment_filename)
+        ascii_filename = unicodedata.normalize('NFKD', attachment_filename).encode('ascii','ignore') 
+        parts.append('filename="%s"' % ascii_filename)
+        if ascii_filename != attachment_filename:
+            from django.utils.http import urlquote
+            quoted_filename = urlquote(attachment_filename)
+            parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
+    if parts:
         response['Content-Disposition'] = '; '.join(parts)
 
     response['Content-length'] = os.path.getsize(filename)
