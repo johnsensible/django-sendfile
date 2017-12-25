@@ -33,7 +33,8 @@ def _get_sendfile():
     return module.sendfile
 
 
-def sendfile(request, filename, attachment=False, attachment_filename=None, mimetype=None, encoding=None):
+def sendfile(request, filename, check_exist=False, attachment=False, attachment_filename=None,
+             mimetype=None, encoding=None):
     '''
     create a response to send file using backend configured in SENDFILE_BACKEND
 
@@ -51,7 +52,7 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
     '''
     _sendfile = _get_sendfile()
 
-    if not os.path.exists(filename):
+    if check_exist and not os.path.exists(filename):
         from django.http import Http404
         raise Http404('"%s" does not exist' % filename)
 
