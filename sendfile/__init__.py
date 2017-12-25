@@ -47,8 +47,10 @@ def sendfile(request, filename, check_exist=False, attachment=False, attachment_
         False: No content-disposition filename
         String: Value used as filename
 
-    If no mimetype or encoding are specified, then they will be guessed via the
-    filename (using the standard python mimetypes module)
+    If mimetype is set to None then it will be automatically guessed
+    via the filename (using the standard python mimetypes module).
+
+    The same apply for encoding.
     """
     _sendfile = _get_sendfile()
 
@@ -56,12 +58,12 @@ def sendfile(request, filename, check_exist=False, attachment=False, attachment_
         from django.http import Http404
         raise Http404('"%s" does not exist' % filename)
 
-    guessed_mimetype, guessed_encoding = guess_type(filename)
-    if mimetype is None:
-        if guessed_mimetype:
-            mimetype = guessed_mimetype
-        else:
-            mimetype = 'application/octet-stream'
+    if mimetype is None or encoding is None:
+        guessed_mimetype, guessed_encoding = guess_type(filename)
+        if mimetype is None:
+            mimetype = guessed_mimetype or 'application/octet-stream'
+        if encoding is None:
+            encoding = guessed_encoding
 
     response = _sendfile(request, filename, mimetype=mimetype)
     if attachment:
@@ -86,8 +88,6 @@ def sendfile(request, filename, check_exist=False, attachment=False, attachment_
 
     response['Content-length'] = os.path.getsize(filename)
     response['Content-Type'] = mimetype
-    if not encoding:
-        encoding = guessed_encoding
     if encoding:
         response['Content-Encoding'] = encoding
 
