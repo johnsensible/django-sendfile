@@ -4,6 +4,8 @@ from mimetypes import guess_type
 VERSION = (0, 3, 4)
 __version__ = '.'.join(map(str, VERSION))
 
+_guess = object()
+
 
 def _lazy_load(fn):
     _cached = []
@@ -34,7 +36,7 @@ def _get_sendfile():
 
 
 def sendfile(request, filename, check_exist=False, attachment=False, attachment_filename=None,
-             mimetype=None, encoding=None):
+             encoding=_guess, filesize=_guess, mimetype=_guess):
     """
     Create a response to send file using backend configured in SENDFILE_BACKEND.
 
@@ -47,10 +49,12 @@ def sendfile(request, filename, check_exist=False, attachment=False, attachment_
         False: No content-disposition filename
         String: Value used as filename
 
-    If mimetype is set to None then it will be automatically guessed
-    via the filename (using the standard python mimetypes module).
+    Any of encoding, filesize and mimetype left to _guess will be
+    guessed via the filename (using the standard python mimetypes
+    and os.path modules).
 
-    The same apply for encoding.
+    Any of encoding, filesize and mimetype set to None will not
+    be set into the response headers.
     """
     _sendfile = _get_sendfile()
 
@@ -58,11 +62,13 @@ def sendfile(request, filename, check_exist=False, attachment=False, attachment_
         from django.http import Http404
         raise Http404('"%s" does not exist' % filename)
 
-    if mimetype is None or encoding is None:
+    if filesize is _guess:
+        filesize = os.path.getsize(filename)
+    if mimetype is _guess or encoding is _guess:
         guessed_mimetype, guessed_encoding = guess_type(filename)
-        if mimetype is None:
+        if mimetype is _guess:
             mimetype = guessed_mimetype or 'application/octet-stream'
-        if encoding is None:
+        if encoding is _guess:
             encoding = guessed_encoding
 
     response = _sendfile(request, filename, mimetype=mimetype)
@@ -86,9 +92,11 @@ def sendfile(request, filename, check_exist=False, attachment=False, attachment_
                 parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
         response['Content-Disposition'] = '; '.join(parts)
 
-    response['Content-length'] = os.path.getsize(filename)
-    response['Content-Type'] = mimetype
-    if encoding:
+    if encoding is not None:
         response['Content-Encoding'] = encoding
+    if filesize is not None:
+        response['Content-Length'] = filesize
+    if mimetype is not None:
+        response['Content-Type'] = mimetype
 
     return response
