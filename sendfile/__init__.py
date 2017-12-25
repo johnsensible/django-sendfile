@@ -1,16 +1,18 @@
-VERSION = (0, 3, 4)
-__version__ = '.'.join(map(str, VERSION))
-
 import os.path
 from mimetypes import guess_type
+
+VERSION = (0, 3, 4)
+__version__ = '.'.join(map(str, VERSION))
 
 
 def _lazy_load(fn):
     _cached = []
+
     def _decorated():
         if not _cached:
             _cached.append(fn())
         return _cached[0]
+
     def clear():
         while _cached:
             _cached.pop()
@@ -29,7 +31,6 @@ def _get_sendfile():
         raise ImproperlyConfigured('You must specify a valued for SENDFILE_BACKEND')
     module = import_module(backend)
     return module.sendfile
-
 
 
 def sendfile(request, filename, attachment=False, attachment_filename=None, mimetype=None, encoding=None):
@@ -60,7 +61,7 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
             mimetype = guessed_mimetype
         else:
             mimetype = 'application/octet-stream'
-        
+
     response = _sendfile(request, filename, mimetype=mimetype)
     if attachment:
         if attachment_filename is None:
