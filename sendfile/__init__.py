@@ -24,7 +24,10 @@ def _lazy_load(fn):
 
 @_lazy_load
 def _get_sendfile():
-    from django.utils.importlib import import_module
+    try:
+        from django.utils.importlib import import_module
+    except ImportError:  # Django >= 1.9
+        from importlib import import_module
     from django.conf import settings
     from django.core.exceptions import ImproperlyConfigured
 
