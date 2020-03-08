@@ -74,7 +74,7 @@ The mod_wsgi backend will only work when using mod_wsgi in daemon mode, not in e
 
 Firstly there are two more django settings:
 
-* `SENDFILE_ROOT` - this is a directoy where all files that will be used with sendfile must be located
+* `SENDFILE_ROOT` - this is a directory where all files that will be used with sendfile must be located
 * `SENDFILE_URL` - internal URL prefix for all files served via sendfile
 
 These settings are needed as this backend makes mod_wsgi_ send an internal redirect, so we have to convert a file path into a URL.  This means that the files are visible via Apache_ by default too.  So we need to get Apache_ to hide those files from anything that's not an internal redirect.  To so this we can use some mod_rewrite_ magic along these lines:
@@ -111,7 +111,7 @@ Nginx backend
 
 As with the mod_wsgi backend you need to set two extra settings:
 
-* `SENDFILE_ROOT` - this is a directoy where all files that will be used with sendfile must be located
+* `SENDFILE_ROOT` - this is a directory where all files that will be used with sendfile must be located
 * `SENDFILE_URL` - internal URL prefix for all files served via sendfile
 
 You then need to configure nginx to only allow internal access to the files you wish to serve.  More details on this `are here <https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/>`_.
