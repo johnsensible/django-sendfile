@@ -12,5 +12,6 @@ def sendfile(request, filename, **kwargs):
     # rewriting our location to include http, so that
     # mod_wsgi is able to do the internal redirect
     request.get_host = lambda: ''
+    request.build_absolute_uri = lambda location: location
 
     return response

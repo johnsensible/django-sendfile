@@ -1,7 +1,8 @@
 import os.path
 from mimetypes import guess_type
+import unicodedata
 
-VERSION = (0, 3, 4)
+VERSION = (0, 3, 11)
 __version__ = '.'.join(map(str, VERSION))
 
 _guess = object()
@@ -25,15 +26,15 @@ def _lazy_load(fn):
 @_lazy_load
 def _get_sendfile():
     try:
-        from django.utils.importlib import import_module
-    except ImportError:  # Django >= 1.9
         from importlib import import_module
+    except ImportError:  # Django < 1.9
+        from django.utils.importlib import import_module
     from django.conf import settings
     from django.core.exceptions import ImproperlyConfigured
 
     backend = getattr(settings, 'SENDFILE_BACKEND', None)
     if not backend:
-        raise ImproperlyConfigured('You must specify a valued for SENDFILE_BACKEND')
+        raise ImproperlyConfigured('You must specify a value for SENDFILE_BACKEND')
     module = import_module(backend)
     return module.sendfile
 
@@ -80,14 +81,13 @@ def sendfile(request, filename, check_exist=False, attachment=False, attachment_
             attachment_filename = os.path.basename(filename)
         parts = ['attachment']
         if attachment_filename:
-            from unidecode import unidecode
             try:
                 from django.utils.encoding import force_text
             except ImportError:
                 # Django 1.3
                 from django.utils.encoding import force_unicode as force_text
             attachment_filename = force_text(attachment_filename)
-            ascii_filename = unidecode(attachment_filename)
+            ascii_filename = unicodedata.normalize('NFKD', attachment_filename).encode('ascii','ignore') 
             parts.append('filename="%s"' % ascii_filename)
             if ascii_filename != attachment_filename:
                 from django.utils.http import urlquote

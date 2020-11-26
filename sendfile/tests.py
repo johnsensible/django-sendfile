@@ -9,6 +9,11 @@ from tempfile import mkdtemp
 import shutil
 from sendfile import sendfile as real_sendfile, _get_sendfile
 
+try:
+    from urllib.parse import unquote
+except ImportError:
+    from urllib import unquote
+
 
 def sendfile(request, filename, **kwargs):
     # just a simple response with the filename
@@ -129,4 +134,26 @@ class TestNginxBackend(TempFileTestCase):
         filepath = self.ensure_file(u'péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(smart_str(u'/private/péter_là_gueule.txt'), response['X-Accel-Redirect'])
+        self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), unquote(response['X-Accel-Redirect']))
+
+
+class TestModWsgiBackend(TempFileTestCase):
+
+    def setUp(self):
+        super(TestModWsgiBackend, self).setUp()
+        settings.SENDFILE_BACKEND = 'sendfile.backends.mod_wsgi'
+        settings.SENDFILE_ROOT = self.TEMP_FILE_ROOT
+        settings.SENDFILE_URL = '/private'
+        _get_sendfile.clear()
+
+    def test_correct_url_in_location_header(self):
+        filepath = self.ensure_file('readme.txt')
+        response = real_sendfile(HttpRequest(), filepath)
+        self.assertTrue(response is not None)
+        self.assertEqual('/private/readme.txt', response['Location'])
+
+    def test_location_header_containing_unicode(self):
+        filepath = self.ensure_file(u'péter_là_gueule.txt')
+        response = real_sendfile(HttpRequest(), filepath)
+        self.assertTrue(response is not None)
+        self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), unquote(response['Location']))
