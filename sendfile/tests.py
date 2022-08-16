@@ -132,7 +132,7 @@ class TestNginxBackend(TempFileTestCase):
         filepath = self.ensure_file(u'péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), unquote(response['X-Accel-Redirect']))
+        self.assertEqual(u'/private/péter_là_gueule.txt', unquote(response['X-Accel-Redirect']))
 
 
 class TestModWsgiBackend(TempFileTestCase):
@@ -154,4 +154,4 @@ class TestModWsgiBackend(TempFileTestCase):
         filepath = self.ensure_file(u'péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(u'/private/péter_là_gueule.txt'.encode('utf-8'), unquote(response['Location']))
+        self.assertEqual(u'/private/péter_là_gueule.txt', unquote(response['Location']))

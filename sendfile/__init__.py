@@ -72,15 +72,22 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
         parts = ['attachment']
         if attachment_filename:
             try:
-                from django.utils.encoding import force_text
+                from django.utils.encoding import force_str as force_text
             except ImportError:
-                # Django 1.3
-                from django.utils.encoding import force_unicode as force_text
+                # Django 2.x
+                try:
+                    from django.utils.encoding import force_text
+                except ImportError:
+                    # Django 1.3
+                    from django.utils.encoding import force_unicode as force_text
             attachment_filename = force_text(attachment_filename)
-            ascii_filename = unicodedata.normalize('NFKD', attachment_filename).encode('ascii','ignore') 
+            ascii_filename = force_text(unicodedata.normalize('NFKD', attachment_filename).encode('ascii','ignore'))
             parts.append('filename="%s"' % ascii_filename)
             if ascii_filename != attachment_filename:
-                from django.utils.http import urlquote
+                try:
+                    from urllib.parse import quote as urlquote
+                except ImportError:
+                    from django.utils.http import urlquote
                 quoted_filename = urlquote(attachment_filename)
                 parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
         response['Content-Disposition'] = '; '.join(parts)

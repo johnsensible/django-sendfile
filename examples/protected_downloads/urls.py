@@ -1,9 +1,9 @@
-from django.conf.urls.defaults import *
+from django.urls import include, re_path, path
 
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    (r'^', include('protected_downloads.download.urls')),
-    (r'^admin/', include(admin.site.urls)),
-)
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    re_path(r'^', include('protected_downloads.download.urls')),
+]
