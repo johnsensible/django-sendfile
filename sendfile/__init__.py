@@ -1,9 +1,11 @@
-VERSION = (0, 3, 11)
+VERSION = (0, 3, 12)
 __version__ = '.'.join(map(str, VERSION))
 
 import os.path
 from mimetypes import guess_type
 import unicodedata
+from urllib.parse import quote
+from django.utils.encoding import force_str
 
 
 def _lazy_load(fn):
@@ -76,17 +78,14 @@ def sendfile(request, filename, attachment=False, inline=False, attachment_filen
         else:
             parts = ['attachment']
         if attachment_filename:
-            try:
-                from django.utils.encoding import force_text
-            except ImportError:
-                # Django 1.3
-                from django.utils.encoding import force_unicode as force_text
-            attachment_filename = force_text(attachment_filename)
+
+                
+
+            attachment_filename = force_str(attachment_filename)
             ascii_filename = unicodedata.normalize('NFKD', attachment_filename).encode('ascii', 'ignore')
             parts.append('filename="%s"' % ascii_filename)
             if ascii_filename != attachment_filename:
-                from django.utils.http import urlquote
-                quoted_filename = urlquote(attachment_filename)
+                quoted_filename = quote(attachment_filename)
                 parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
         response['Content-Disposition'] = '; '.join(parts)
 
