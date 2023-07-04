@@ -1,17 +1,21 @@
-VERSION = (0, 3, 11)
-__version__ = '.'.join(map(str, VERSION))
-
 import os.path
 from mimetypes import guess_type
 import unicodedata
 
+VERSION = (0, 3, 11)
+__version__ = '.'.join(map(str, VERSION))
+
+_guess = object()
+
 
 def _lazy_load(fn):
     _cached = []
+
     def _decorated():
         if not _cached:
             _cached.append(fn())
         return _cached[0]
+
     def clear():
         while _cached:
             _cached.pop()
@@ -23,7 +27,7 @@ def _lazy_load(fn):
 def _get_sendfile():
     try:
         from importlib import import_module
-    except ImportError:
+    except ImportError:  # Django < 1.9
         from django.utils.importlib import import_module
     from django.conf import settings
     from django.core.exceptions import ImproperlyConfigured
@@ -35,10 +39,10 @@ def _get_sendfile():
     return module.sendfile
 
 
-
-def sendfile(request, filename, attachment=False, attachment_filename=None, mimetype=None, encoding=None):
-    '''
-    create a response to send file using backend configured in SENDFILE_BACKEND
+def sendfile(request, filename, check_exist=False, attachment=False, attachment_filename=None,
+             encoding=_guess, filesize=_guess, mimetype=_guess):
+    """
+    Create a response to send file using backend configured in SENDFILE_BACKEND.
 
     If attachment is True the content-disposition header will be set.
     This will typically prompt the user to download the file, rather
@@ -49,22 +53,28 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
         False: No content-disposition filename
         String: Value used as filename
 
-    If no mimetype or encoding are specified, then they will be guessed via the
-    filename (using the standard python mimetypes module)
-    '''
+    Any of encoding, filesize and mimetype left to _guess will be
+    guessed via the filename (using the standard python mimetypes
+    and os.path modules).
+
+    Any of encoding, filesize and mimetype set to None will not
+    be set into the response headers.
+    """
     _sendfile = _get_sendfile()
 
-    if not os.path.exists(filename):
+    if check_exist and not os.path.exists(filename):
         from django.http import Http404
         raise Http404('"%s" does not exist' % filename)
 
-    guessed_mimetype, guessed_encoding = guess_type(filename)
-    if mimetype is None:
-        if guessed_mimetype:
-            mimetype = guessed_mimetype
-        else:
-            mimetype = 'application/octet-stream'
-        
+    if filesize is _guess:
+        filesize = os.path.getsize(filename)
+    if mimetype is _guess or encoding is _guess:
+        guessed_mimetype, guessed_encoding = guess_type(filename)
+        if mimetype is _guess:
+            mimetype = guessed_mimetype or 'application/octet-stream'
+        if encoding is _guess:
+            encoding = guessed_encoding
+
     response = _sendfile(request, filename, mimetype=mimetype)
     if attachment:
         if attachment_filename is None:
@@ -85,11 +95,11 @@ def sendfile(request, filename, attachment=False, attachment_filename=None, mime
                 parts.append('filename*=UTF-8\'\'%s' % quoted_filename)
         response['Content-Disposition'] = '; '.join(parts)
 
-    response['Content-length'] = os.path.getsize(filename)
-    response['Content-Type'] = mimetype
-    if not encoding:
-        encoding = guessed_encoding
-    if encoding:
+    if encoding is not None:
         response['Content-Encoding'] = encoding
+    if filesize is not None:
+        response['Content-Length'] = filesize
+    if mimetype is not None:
+        response['Content-Type'] = mimetype
 
     return response

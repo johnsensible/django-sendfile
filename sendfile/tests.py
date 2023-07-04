@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.test import TestCase
 from django.http import HttpResponse, Http404, HttpRequest
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_bytes, smart_str
 import os.path
 from tempfile import mkdtemp
 import shutil
@@ -90,7 +90,9 @@ class TestSendfile(TempFileTestCase):
     def test_attachment_filename_unicode(self):
         response = real_sendfile(HttpRequest(), self._get_readme(), attachment=True, attachment_filename='test’s.txt')
         self.assertTrue(response is not None)
-        self.assertEqual('attachment; filename="tests.txt"; filename*=UTF-8\'\'test%E2%80%99s.txt', response['Content-Disposition'])
+        self.assertEqual(
+            'attachment; filename="test\'s.txt"; filename*=UTF-8\'\'test%E2%80%99s.txt',
+            response['Content-Disposition'])
 
 
 class TestXSendfileBackend(TempFileTestCase):
@@ -110,7 +112,7 @@ class TestXSendfileBackend(TempFileTestCase):
         filepath = self.ensure_file(u'péter_là_gueule.txt')
         response = real_sendfile(HttpRequest(), filepath)
         self.assertTrue(response is not None)
-        self.assertEqual(smart_str(filepath), response['X-Sendfile'])
+        self.assertEqual(smart_bytes(filepath), response['X-Sendfile'])
 
 
 class TestNginxBackend(TempFileTestCase):
